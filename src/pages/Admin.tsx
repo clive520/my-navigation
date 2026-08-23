@@ -44,6 +44,7 @@ export function Admin() {
     e.preventDefault()
     try {
       const res = await fetch('/api/auth', {
+        method: 'POST',
         headers: getAuthHeaders(password)
       })
       if (res.ok) {
