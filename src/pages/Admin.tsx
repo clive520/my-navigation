@@ -1,14 +1,23 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import type { Item, Tag } from '../types'
 
+function getAuthHeaders(password: string): Record<string, string> {
+  return { Authorization: `Bearer ${password}` }
+}
+
 export function Admin() {
-  const [isLogin, setIsLogin] = useState(false)
-  const [password, setPassword] = useState('')
+  const [isLogin, setIsLogin] = useState(() => !!sessionStorage.getItem('admin_token'))
+  const [password, setPassword] = useState(() => sessionStorage.getItem('admin_token') || '')
   const [items, setItems] = useState<Item[]>([])
   const [tags, setTags] = useState<Tag[]>([])
   const [editingItem, setEditingItem] = useState<Partial<Item> | null>(null)
   const [message, setMessage] = useState('')
   const editFormRef = useRef<HTMLDivElement>(null)
+  const passwordRef = useRef(password)
+
+  useEffect(() => {
+    passwordRef.current = password
+  }, [password])
 
   useEffect(() => {
     if (isLogin) {
@@ -34,10 +43,12 @@ export function Admin() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const res = await fetch('/api/items', {
-        headers: { Authorization: `Bearer ${password}` }
+      const res = await fetch('/api/auth', {
+        headers: getAuthHeaders(password)
       })
       if (res.ok) {
+        sessionStorage.setItem('admin_token', password)
+        passwordRef.current = password
         setIsLogin(true)
         setMessage('')
       } else {
@@ -54,13 +65,14 @@ export function Admin() {
 
     const method = editingItem.id ? 'PUT' : 'POST'
     const url = editingItem.id ? `/api/items/${editingItem.id}` : '/api/items'
+    const token = passwordRef.current
 
     try {
       const res = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${password}`
+          ...getAuthHeaders(token)
         },
         body: JSON.stringify(editingItem)
       })
@@ -69,6 +81,8 @@ export function Admin() {
         setEditingItem(null)
         fetchData()
         setMessage(editingItem.id ? '更新成功' : '新增成功')
+      } else {
+        setMessage('操作失敗：' + res.status)
       }
     } catch {
       setMessage('操作失敗')
@@ -77,16 +91,19 @@ export function Admin() {
 
   const handleDelete = async (id: number) => {
     if (!confirm('確定要刪除此項目嗎？')) return
+    const token = passwordRef.current
 
     try {
       const res = await fetch(`/api/items/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${password}` }
+        headers: getAuthHeaders(token)
       })
 
       if (res.ok) {
         fetchData()
         setMessage('刪除成功')
+      } else {
+        setMessage('刪除失敗：' + res.status)
       }
     } catch {
       setMessage('刪除失敗')
@@ -99,17 +116,20 @@ export function Admin() {
 
     const formData = new FormData()
     formData.append('file', file)
+    const token = passwordRef.current
 
     try {
       const res = await fetch('/api/upload', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${password}` },
+        headers: getAuthHeaders(token),
         body: formData
       })
 
       if (res.ok) {
         const { url } = await res.json()
         setEditingItem(prev => prev ? { ...prev, image_url: url } : null)
+      } else {
+        setMessage('上傳失敗：' + res.status)
       }
     } catch {
       setMessage('上傳失敗')
@@ -145,16 +165,24 @@ export function Admin() {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold">管理後台</h2>
-          <button
-            onClick={() => setEditingItem({})}
-            className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90"
-          >
-            新增項目
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={() => { sessionStorage.removeItem('admin_token'); setIsLogin(false); setPassword('') }}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+            >
+              登出
+            </button>
+            <button
+              onClick={() => setEditingItem({})}
+              className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90"
+            >
+              新增項目
+            </button>
+          </div>
         </div>
 
         {message && (
-          <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+          <div className={`mb-4 p-4 rounded-lg ${message.includes('失敗') || message.includes('錯誤') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
             {message}
           </div>
         )}
