@@ -23,6 +23,27 @@ CREATE TABLE IF NOT EXISTS item_tags (
   PRIMARY KEY (item_id, tag_id)
 );
 
+-- 建立項目檔案表
+CREATE TABLE IF NOT EXISTS item_files (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  item_id       INTEGER NOT NULL,
+  file_name     TEXT NOT NULL,
+  original_name TEXT NOT NULL,
+  file_type     TEXT NOT NULL,
+  file_size     INTEGER NOT NULL,
+  created_at    TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
+);
+
+-- 建立允許的檔案類型表
+CREATE TABLE IF NOT EXISTS file_types (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  extension  TEXT NOT NULL UNIQUE,
+  mime_type  TEXT NOT NULL,
+  label      TEXT NOT NULL,
+  enabled    INTEGER DEFAULT 1
+);
+
 -- 插入預設標籤
 INSERT INTO tags (name) VALUES ('工具');
 INSERT INTO tags (name) VALUES ('學習');
@@ -32,6 +53,15 @@ INSERT INTO tags (name) VALUES ('設計');
 INSERT INTO tags (name) VALUES ('商業');
 INSERT INTO tags (name) VALUES ('AI');
 INSERT INTO tags (name) VALUES ('其他');
+
+-- 插入預設檔案類型
+INSERT INTO file_types (extension, mime_type, label, enabled) VALUES ('txt', 'text/plain', '純文字檔案', 1);
+INSERT INTO file_types (extension, mime_type, label, enabled) VALUES ('md', 'text/markdown', 'Markdown 檔案', 1);
+INSERT INTO file_types (extension, mime_type, label, enabled) VALUES ('png', 'image/png', 'PNG 圖片', 1);
+INSERT INTO file_types (extension, mime_type, label, enabled) VALUES ('jpg', 'image/jpeg', 'JPG 圖片', 1);
+INSERT INTO file_types (extension, mime_type, label, enabled) VALUES ('jpeg', 'image/jpeg', 'JPEG 圖片', 1);
+INSERT INTO file_types (extension, mime_type, label, enabled) VALUES ('gif', 'image/gif', 'GIF 圖片', 1);
+INSERT INTO file_types (extension, mime_type, label, enabled) VALUES ('pdf', 'application/pdf', 'PDF 文件', 1);
 
 -- 插入預設項目
 INSERT INTO items (name, url, description, sort_order) VALUES ('GitHub', 'https://github.com', '程式碼版本控制平台', 1);

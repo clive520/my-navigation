@@ -7,9 +7,7 @@ interface CardProps {
 export function Card({ item }: CardProps) {
   return (
     <a
-      href={item.url}
-      target="_blank"
-      rel="noopener noreferrer"
+      href={`#item/${item.id}`}
       className="group block rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-200 p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
     >
       {item.image_url && (
@@ -36,6 +34,11 @@ export function Card({ item }: CardProps) {
             {tag.name}
           </span>
         ))}
+        {item.files && item.files.length > 0 && (
+          <span className="px-3 py-1 text-xs font-medium rounded-full bg-gray-200 text-gray-600">
+            📎 {item.files.length}
+          </span>
+        )}
       </div>
     </a>
   )
