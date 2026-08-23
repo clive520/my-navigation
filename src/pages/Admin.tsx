@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import type { Item, Tag } from '../types'
 
 export function Admin() {
@@ -8,12 +8,19 @@ export function Admin() {
   const [tags, setTags] = useState<Tag[]>([])
   const [editingItem, setEditingItem] = useState<Partial<Item> | null>(null)
   const [message, setMessage] = useState('')
+  const editFormRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (isLogin) {
       fetchData()
     }
   }, [isLogin])
+
+  useEffect(() => {
+    if (editingItem && editFormRef.current) {
+      editFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [editingItem])
 
   const fetchData = async () => {
     const [itemsRes, tagsRes] = await Promise.all([
@@ -153,7 +160,7 @@ export function Admin() {
         )}
 
         {editingItem && (
-          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl mb-8">
+          <div ref={editFormRef} className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl mb-8">
             <h3 className="text-xl font-bold mb-4">
               {editingItem.id ? '編輯項目' : '新增項目'}
             </h3>
