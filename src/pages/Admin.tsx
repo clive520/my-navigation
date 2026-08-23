@@ -69,13 +69,14 @@ export function Admin() {
     const token = passwordRef.current
 
     try {
+      const tagIds = editingItem.tags?.map(t => t.id) || []
       const res = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
           ...getAuthHeaders(token)
         },
-        body: JSON.stringify(editingItem)
+        body: JSON.stringify({ ...editingItem, tags: tagIds })
       })
 
       if (res.ok) {
