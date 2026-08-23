@@ -4,7 +4,7 @@
 
 ## 技術棧
 
-- React 18 + Vite
+- React 18 + Vite + TypeScript
 - Tailwind CSS
 - Cloudflare Pages
 - Cloudflare D1 (SQLite)

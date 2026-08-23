@@ -15,7 +15,7 @@
 
 | 類別 | 技術 |
 |------|------|
-| **前端框架** | React 18 + Vite |
+| **前端框架** | React 18 + Vite + TypeScript |
 | **樣式** | Tailwind CSS |
 | **後端** | Cloudflare Pages Functions |
 | **API 框架** | Hono |

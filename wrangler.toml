@@ -1,0 +1,13 @@
+name = "my-navigation"
+pages_build_output_dir = "./dist"
+compatibility_date = "2024-09-23"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "my-navigation-db-v2"
+database_id = "a6dbf81c-d668-4dc9-ac8e-ff6953005b6a"
+preview_database_id = "DB"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "my-navigation-images"
