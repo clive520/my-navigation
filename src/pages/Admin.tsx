@@ -73,7 +73,7 @@ export function Admin() {
       const res = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8',
           ...getAuthHeaders(token)
         },
         body: JSON.stringify({ ...editingItem, tags: tagIds })
